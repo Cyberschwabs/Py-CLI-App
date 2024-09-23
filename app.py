@@ -30,15 +30,6 @@ def login_to_azure():
 
 app = typer.Typer()
 
-# Create RingCentral User
-@app.command()
-def ringcentral(name: str, email: str, countrycode: str):
-    print("You've entered the following user information\n",
-          f'{name}\n',
-          f'{email}\n',
-          f'{countrycode}\n')
-
-
 # Get Azure AD User by UPN
 @app.command()
 def getuserdetails(upn: Annotated[str, typer.Option(prompt=True)]):
