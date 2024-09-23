@@ -66,7 +66,6 @@ def createfolder(parent_dir: Annotated[str, typer.Option(prompt=True)],
     newdirectory = os.path.join(parent_dir, directory)
     os.mkdir(newdirectory)
 
-
 if __name__ == "__main__":
     login_to_azure()
     app()
