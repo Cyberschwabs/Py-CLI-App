@@ -14,16 +14,16 @@ def login_to_azure():
     authority = f"https://login.microsoftonline.com/{tenant_id}"
     scope = ['https://graph.microsoft.com/.default']
 
-    rcapp = msal.ConfidentialClientApplication(
+    cliapp = msal.ConfidentialClientApplication(
         client_id=client_id,
         client_credential=client_secret,
         authority=authority
     )
 
-    token_result = rcapp.acquire_token_silent(scopes=scope, account=None)
+    token_result = cliapp.acquire_token_silent(scopes=scope, account=None)
     if not token_result:
         logging.info("No suitable token exists in cache. Let's get a new one from Azure AD.")
-        token_result = rcapp.acquire_token_for_client(scopes=scope)
+        token_result = cliapp.acquire_token_for_client(scopes=scope)
 
     global token
     token = token_result.get("access_token")
@@ -44,9 +44,19 @@ def getuserdetails(upn: Annotated[str, typer.Option(prompt=True)]):
         }
 
         graph_result = requests.get(url=f"{base_url + endpoint}", headers=headers)
-        result = graph_result.json()
-        print(json.dumps(result, indent=4))
+        result = json.dumps(graph_result.json(), indent=4)
+        print(result)
         bar()
+
+
+@app.command()
+
+
+@app.command()
+
+
+@app.command()
+
 
 # Create New Folder Directory
 @app.command()
@@ -55,6 +65,7 @@ def createfolder(parent_dir: Annotated[str, typer.Option(prompt=True)],
     print(f'{parent_dir}' + ' ' + f'{directory}' + ' Will be created!')
     newdirectory = os.path.join(parent_dir, directory)
     os.mkdir(newdirectory)
+
 
 if __name__ == "__main__":
     login_to_azure()
