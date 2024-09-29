@@ -4,8 +4,9 @@ import msal
 from alive_progress import alive_bar
 from dotenv import load_dotenv
 from typing_extensions import Annotated
+from pymongo import MongoClient
 
-def login_to_azure():
+def login_to_azure() -> None:
     load_dotenv(".env")
 
     client_id = os.getenv('AZURE_CLIENT_ID')
@@ -32,10 +33,15 @@ app = typer.Typer()
 
 # Get Azure AD User by UPN
 @app.command()
-def getuserdetails(upn: Annotated[str, typer.Option(prompt=True)]):
+def getuserdetails(upn: Annotated[str, typer.Option(prompt=True)]) -> None:
+    # Add Connection to MongoDB
+    client = MongoClient('mongodb://localhost:27017')
+    db = client.local
+
     with alive_bar(120000) as bar:
         print('Getting user: ' + f'{upn}')
 
+        # Gets User Details by UPN
         base_url = 'https://graph.microsoft.com/v1.0/'
         endpoint = f'users/{upn}'
         access_token = token
@@ -45,26 +51,44 @@ def getuserdetails(upn: Annotated[str, typer.Option(prompt=True)]):
 
         graph_result = requests.get(url=f"{base_url + endpoint}", headers=headers)
         result = json.dumps(graph_result.json(), indent=4)
-        print(result)
+        getID = json.loads(result)
+
+        if "error" not in getID:
+            # Parse userInfo
+            userId = getID["id"]
+            userDisplayName = getID["displayName"]
+
+            userInfo = db.userInfo
+            userData = {
+                'id': f'{userId}',
+                'displayName': f'{userDisplayName}'
+            }
+
+            queryResult = userInfo.find_one({'id':f'{userId}'})
+
+            if queryResult is None:
+                inputData = userInfo.insert_one(userData)
+                print(f'{userDisplayName}' + " has been added to the DB")
+            else:
+                return print(f'{userDisplayName}' + " already exist in the DB")
+
+        else:
+            raise Exception(f'{upn}' + " Doesn't Exist")
+
         bar()
 
 
 @app.command()
-
-
-@app.command()
-
+def createSomething():
+    ...
 
 @app.command()
+def createSomething():
+    ...
 
-
-# Create New Folder Directory
 @app.command()
-def createfolder(parent_dir: Annotated[str, typer.Option(prompt=True)],
-                        directory: Annotated[str, typer.Option(prompt=True)]):
-    print(f'{parent_dir}' + ' ' + f'{directory}' + ' Will be created!')
-    newdirectory = os.path.join(parent_dir, directory)
-    os.mkdir(newdirectory)
+def createSomething():
+    ...
 
 if __name__ == "__main__":
     login_to_azure()
