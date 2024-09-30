@@ -6,8 +6,9 @@ from dotenv import load_dotenv
 from typing_extensions import Annotated
 from pymongo import MongoClient
 
+load_dotenv(".env")
+
 def login_to_azure() -> None:
-    load_dotenv(".env")
 
     client_id = os.getenv('AZURE_CLIENT_ID')
     client_secret = os.getenv('AZURE_CLIENT_SECRET')
@@ -35,8 +36,10 @@ app = typer.Typer()
 @app.command()
 def getuserdetails(upn: Annotated[str, typer.Option(prompt=True)]) -> None:
     # Add Connection to MongoDB
-    client = MongoClient('mongodb://root:password@host.docker.internal:27017/')
-    db = client.local
+    az_mongo_connection = os.getenv('MONGODB_CONNECTION')
+    #client = MongoClient('mongodb://root:password@host.docker.internal:27017/')
+    client = MongoClient(az_mongo_connection)
+    db = client.test_schwabs
 
     with alive_bar(120000) as bar:
         print('Getting user: ' + f'{upn}')
