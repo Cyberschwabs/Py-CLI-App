@@ -35,7 +35,7 @@ app = typer.Typer()
 @app.command()
 def getuserdetails(upn: Annotated[str, typer.Option(prompt=True)]) -> None:
     # Add Connection to MongoDB
-    client = MongoClient('mongodb://localhost:27017')
+    client = MongoClient('mongodb://root:password@host.docker.internal:27017/')
     db = client.local
 
     with alive_bar(120000) as bar:
@@ -76,15 +76,6 @@ def getuserdetails(upn: Annotated[str, typer.Option(prompt=True)]) -> None:
             raise Exception(f'{upn}' + " Doesn't Exist")
 
         bar()
-
-
-@app.command()
-def createSomething():
-    ...
-
-@app.command()
-def createSomething():
-    ...
 
 @app.command()
 def createSomething():
