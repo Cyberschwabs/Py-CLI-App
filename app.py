@@ -35,8 +35,9 @@ app = typer.Typer()
 # Get Azure AD User by UPN
 @app.command()
 def getuserdetails(upn: Annotated[str, typer.Option(prompt=True)]) -> None:
-    # Add Connection to MongoDB
+    # Add Connection to Azure CosmoDB - MongoDB
     az_mongo_connection = os.getenv('MONGODB_CONNECTION')
+    # Connection to Docker
     #client = MongoClient('mongodb://root:password@host.docker.internal:27017/')
     client = MongoClient(az_mongo_connection)
     db = client.test_schwabs
