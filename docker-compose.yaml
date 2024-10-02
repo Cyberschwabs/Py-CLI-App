@@ -1,0 +1,59 @@
+version: '3'
+services:
+  grafana:
+    build:
+      context: ./Grafana/
+      dockerfile: ./Dockerfile
+    container_name: grafana
+    image: grafana
+    hostname: grafana
+    tty: true
+    stdin_open: true
+    ports:
+      - "3000:3000"
+
+  mongoDB:
+    build:
+      context: ./MongoDB/
+      dockerfile: ./Dockerfile
+    container_name: mongodb
+    image: mongodb
+    hostname: mongodb
+    tty: true
+    stdin_open: true
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: "${MONGO_INITDB_ROOT_USERNAME}"
+      MONGO_INITDB_ROOT_PASSWORD: "${MONGO_INITDB_ROOT_PASSWORD}"
+    ports:
+      - "27017:27017"
+
+  mongoDB-Exporter:
+    build:
+      context: ./Prometheus/MongoDB-Exporter/
+      dockerfile: ./Dockerfile
+    container_name: mongo-exporter
+    image: percona/mongodb_exporter:0.41.1
+    hostname: mongo-exporter
+    ports:
+      - "9216:9216"
+      - "17001:17001"
+    environment:
+      MONGODB_URI: "${MONGODB_URI}"
+
+  prometheus:
+    build:
+      context: ./Prometheus/
+      dockerfile: ./Dockerfile
+    container_name: prometheus
+    image: prom/prometheus
+    hostname: prometheus
+    tty: true
+    stdin_open: true
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./Prometheus/prometheus.yaml:/etc/prometheus/prometheus.yaml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yaml'
+    depends_on:
+      - mongoDB-Exporter
